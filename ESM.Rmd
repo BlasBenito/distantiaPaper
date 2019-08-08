@@ -41,7 +41,6 @@ if(!("distantia" %in% installed.packages())){
 }
 
 options(scipen = 9999)
-
 ```
 
 
