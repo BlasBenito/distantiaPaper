@@ -1,7 +1,11 @@
 Supplementary Electronic Material of the paper ‘distantia: an open-source toolset to quantify dissimilarity between multivariate ecological time-series’
 ================
 
-Blas M. Benito
+
+[![DOI](https://zenodo.org/badge/201233099.svg)](https://zenodo.org/badge/latestdoi/201233099)
+
+
+## Blas M. Benito
 
 This repository contains the electronic supplementary materials of the paper “distantia: an open-source toolset to quantify dissimilarity between multivariate ecological time-series”, authored by Blas M.
 Benito, and John H. Birks.
