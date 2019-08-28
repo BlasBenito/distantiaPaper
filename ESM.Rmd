@@ -440,8 +440,10 @@ ep.psi <- workflowPsi(
   paired.samples = FALSE,
   ignore.blocks = TRUE
 )
+```
 
-#computing null psi values
+```{r, cache = TRUE, eval = FALSE}
+#computing null psi values (this will take some time!)
 ep.psi.null <- workflowNullPsi(
   sequences = ep,
   diagonal = TRUE,
@@ -450,18 +452,25 @@ ep.psi.null <- workflowNullPsi(
   method = "euclidean",
   paired.samples = FALSE,
   ignore.blocks = TRUE,
-  repetitions = 9
+  repetitions = 999,
+  parallel.execution = TRUE
 )
 ```
 
 ```{r, echo = FALSE}
-#together
-ep.psi$psi.null <- ep.psi.null$p$p
-ep.temp <- ep.psi[with(ep.psi, order(psi)), ]
-kable(ep.temp[1:28, ], row.names = FALSE, digits = 3, booktabs = T, caption = "Dissimilarity between pollen sequences of the Last Interglacial. Lower psi values indicate higher similarity. The column 'p' represents the probability of obtaining 'Psi' on restricted permutations of the compared datasets.", col.names = c("A", "B", "Psi", "p"))  %>% kable_styling(latex_options = c("HOLD_position", "striped"))
+# save(ep.psi.null, file = "output/ep_psi_null.RData")
+load("output/ep_psi_null.RData")
 ```
 
-```{r, message = FALSE, warning = FALSE, fig.width=5, fig.height=3.5, fig.cap = "Clustering of the Eemian pollen sites based on the dissimilarity matrix.", echo = FALSE}
+
+```{r, echo = FALSE}
+#complete table
+ep.psi$psi.null <- ep.psi.null$p$p
+ep.temp <- ep.psi[with(ep.psi, order(psi)), ]
+kable(ep.temp, row.names = FALSE, digits = 3, booktabs = T, caption = "Dissimilarity (Psi) between Central European pollen sequences dated to the Last Interglacial. Column p represents the probability of finding each given Psi by chance. ", col.names = c("A", "B", "Psi", "p"))  %>% kable_styling(latex_options = c("HOLD_position", "striped"), font_size = 8)
+```
+
+```{r, message = FALSE, warning = FALSE, fig.width=6, fig.height=4, fig.cap = "Clustering of the Eemian pollen sites based on the dissimilarity matrix.", echo = FALSE}
 #to matrix
 ep.psi.matrix <- as.dist(
   formatPsi(
@@ -474,21 +483,22 @@ ep.psi.matrix <- as.dist(
 ep.psi.clust <- hclust(d = ep.psi.matrix, method = "ward.D2")
 
 #plot
-factoextra::fviz_dend(ep.psi.clust, k = 3, # Cut in four groups
-          cex = 0.6, # label size
-          k_colors = viridis(3, end = 0.5),
-          color_labels_by_k = TRUE, # color labels by groups
-          rect = FALSE # Add rectangle around groups
-          )
+factoextra::fviz_dend(
+  ep.psi.clust, k = 3, # Cut in four groups
+  cex = 0.5, # label size
+  k_colors = viridis(3, end = 0.5),
+  color_labels_by_k = TRUE, # color labels by groups
+  rect = FALSE, # Add rectangle around groups
+  horiz = TRUE,
+  main = ""
+  )
 ```
 
 
-The dissimilarity pattern can be plotted as a network after converting Table 2 into a matrix.
-
-```{r, message = FALSE, warning = FALSE, fig.width=4, fig.height=3.5, fig.cap = "Similarity between pollen sites.  Colors represent latitude. The thickness of the edges represent similarity.", echo = FALSE}
+```{r, message = FALSE, warning = FALSE, fig.width=4, fig.height=3, fig.cap = "Similarity between pollen sites.  Colors represent latitude, and edge thickness represent similarity (1/dissimilarity).", echo = FALSE}
 #weighting psi by psi.null
 ep.psi.weighted <- ep.psi[, c("A", "B", "psi")]
-ep.psi.weighted$psi <- (1/ep.psi$psi) * (1 - ep.psi$psi.null)
+ep.psi.weighted$psi <- 1/ep.psi$psi
 
 #scaling between 0 and 1, 
 ep.psi.weighted$psi <- with(
@@ -689,7 +699,7 @@ psi.drop <- t(
 ```
 
 ```{r, echo = FALSE}
-#pretty plotting of the table
+#printing table
 kable(psi.drop, col.names = "Psi drop (%)", booktabs = T, caption = paste("Drop in dissimilarity when omitting each variable for the sequences", A, "and", B, sep = " ")) %>% kable_styling(latex_options = c("HOLD_position", "striped"))
 ```
 
@@ -863,7 +873,10 @@ ec.psi <- workflowPsi(
   diagonal = TRUE,
   ignore.blocks = TRUE
 )
+```
 
+
+```{r, eval = FALSE}
 #psi on restricted permutations
 ec.psi.null <- workflowNullPsi(
   sequences = ec,
@@ -873,9 +886,15 @@ ec.psi.null <- workflowNullPsi(
   paired.samples = FALSE,
   diagonal = TRUE,
   ignore.blocks = TRUE,
-  repetitions = 9
+  repetitions = 999
 )
 ```
+
+```{r, echo = FALSE}
+# save(ec.psi.null, file = "output/   ec_psi_null.RData")
+load("output/ec_psi_null.RData")
+```
+
 
 ```{r, echo = FALSE}
 #computing null expectation of psi
@@ -900,7 +919,7 @@ According to the psi values, the sites from Germany and Sweden have the highest 
 Below we use the function *workflowImportance* to assess how the variables temperature, rainfall, and EVI contribute to the dissimilarity between the dynamics of the three populations.
 
 ```{r, fig.width=7, fig.height=3, fig.cap = "Dissimilarity change when removing one predictor at a time. Psi values of the complete datasets for each pair of sites are indicated by dashed lines. An increment in psi when a given variable is removed indicates that the variable contributes to the similarity between sites."}
-#compute psi by shape
+#importance of variables
 ec.psi.importance <- workflowImportance(
   sequences = ec,
   grouping.column = "site",
@@ -1037,7 +1056,7 @@ the [cold wave of 2012](https://earthobservatory.nasa.gov/images/77126/cold-snap
 Even thought the limited amount of data available (18 years only) prevents the assessment of the statistical significance of the temporal trend of dissimilarity between sites, and in spite of the punctuated events affecting dissimilarity, there is a pattern of increasing dissimilarity between the Spanish and the other sites, and an almost neutral decrease in the dissimilarity of the German and the Swedish sites. What variables are contributing to these patterns?
 
 ```{r, fig.width=7, fig.height=5, fig.cap = "Dissimilarity when removing a given variable. Variables with positive trends are increasing their contribution to similarity over time.", echo = FALSE, message = FALSE, warning = FALSE}
-#computation of psi
+#importance of variables
 ec.psi.year.importance <- workflowImportance(
   sequences = ec[, !(
     colnames(ec) %in% c("site", "year", "month", "date")
@@ -1390,7 +1409,7 @@ AB.least.cost.path.diagonal <- leastCostPath(
 #autosum of sequences
 AB.autosum <- autoSum(
   sequences = AB,
-  named.list = AB.least.cost.path.diagonal,
+  least.cost.path = AB.least.cost.path.diagonal,
   method = "manhattan"
   )
 
