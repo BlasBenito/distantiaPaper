@@ -194,7 +194,7 @@ sensitivityPsi <- function(data, params, repetitions){
   
   #preparing cluster
   n.cores <- parallel::detectCores() - 1
-  my.cluster <- parallel::makeCluster(n.cores, type="FORK")
+  my.cluster <- parallel::makeCluster(n.cores, type="PSOCK")
   doParallel::registerDoParallel(my.cluster)
   
   #nrow params
