@@ -74,7 +74,7 @@ source("sensitivity_functions.R")
 
 # Examples
 
-## Palaeoecology: assessing dissimilarity among pollen sequences dated to the Last Interglacial.
+## Comparison of pollen sequences dated to the Last Interglacial
 
 The data uswd in this example comprises 9 publicly available (European Pollen Database, Pangaea, Neotoma) pollen sequences attributed to the Last Interglacial period (Marine Isotope Stage 5e), also called *Eemian*, with a total of 428 samples of the 22 most abundant pollen types. The data are available under the name *eemian.RData* in the *data* folder. It comprises the dataframes *eemian.sites* (see table and map below), describing some properties of the sites (coordinates, the source database, and the original number of samples and pollen types), and *eemian.pollen*, with the pollen counts for each site and sample. Table 1 shows a summary of the datasets, and Table 2 shows several samples of the different sites.
 
@@ -496,7 +496,7 @@ image_write(A12, path = "output/Figure_2.pdf", format = "pdf", flatten = TRUE)
 rm(list = ls())
 ```
 
-## Neoecology: comparing the phenology of *Fagus sylvatica* forests in Spain, Germany, and Sweden
+## Functional dynamics of three populations of Fagus sylvatica
 
 ### Data
 
@@ -1286,10 +1286,15 @@ sensitivity.plot$cases.to.modify <- sensitivity.plot$cases.to.modify + c(0, 1, 4
 
 #abbreviate methods
 # sensitivity.plot$method <- abbreviate(sensitivity.plot$method, minlength = 8)
-sensitivity.plot$method <- gsub("elastic", "elas", sensitivity.plot$method)
-sensitivity.plot$method <- gsub("diagonal", "di", sensitivity.plot$method)
-sensitivity.plot$method <- gsub("orthogonal", "or", sensitivity.plot$method)
-sensitivity.plot$method <- gsub("no blocks", "nb", sensitivity.plot$method)
+sensitivity.plot$method <- gsub("elastic - orthogonal - no blocks", "elasor no blocks", sensitivity.plot$method)
+sensitivity.plot$method <- gsub("elastic - orthogonal", "elasor", sensitivity.plot$method)
+sensitivity.plot$method <- gsub("elastic - diagonal", "elasdi", sensitivity.plot$method)
+sensitivity.plot$method <- gsub("elastic - diagonal	- no blocks", "elasdi no blocks", sensitivity.plot$method)
+
+# sensitivity.plot$method <- gsub("elastic", "elas", sensitivity.plot$method)
+# sensitivity.plot$method <- gsub("diagonal", "di", sensitivity.plot$method)
+# sensitivity.plot$method <- gsub("orthogonal", "or", sensitivity.plot$method)
+# sensitivity.plot$method <- gsub("no blocks", "nb", sensitivity.plot$method)
 sensitivity.plot$method <- gsub(" - ", " ", sensitivity.plot$method)
 sensitivity.plot$method <- gsub("lock-step", "locks", sensitivity.plot$method)
 
@@ -1306,13 +1311,14 @@ plot.modified.datapoints <- ggplot(
   facet_wrap("group", scales = "free_y") +
   labs(color = "Method", alpha = "Std. deviation.") +
   xlab("Modified data-points (%)") + 
-  ylab("Dissimilarity (psi)") +
+  ylab(expression(Dissimilarity ~ (psi))) +
   scale_color_viridis(discrete = TRUE, direction = 1, end = 0.9) +
   cowplot::theme_cowplot() + 
   theme(legend.position = "top",
         plot.margin = unit(c(1, 1, -2, 1), "lines"),
         legend.text = element_text(size = 10),
-        legend.key.width = unit(.3,"cm"))
+        legend.title = element_text(size = 10),
+        legend.key.width = unit(.25,"cm"))
 
 
 #removed samples
@@ -1335,7 +1341,7 @@ plot.removed.samples <- ggplot(
   facet_wrap("group", scales = "free_y") +
   labs(color = "Method", alpha = "Std. deviation.") +
   xlab("Removed samples (%)") + 
-  ylab("Dissimilarity (psi)") +
+  ylab(expression(Dissimilarity ~ (psi))) +
   theme(panel.grid.major = element_line(color = "gray50", size = 0.1)) +
   scale_color_viridis(discrete = TRUE, end = 0.72, direction = 1) +
   scale_x_continuous(breaks = seq(0, 80, by = 20)) +
